@@ -1,33 +1,43 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-from openai import OpenAI
 from dotenv import load_dotenv
+from openai import OpenAI
 import os
 
+# .env betöltése
 load_dotenv()
+
+# Inicializáljuk az új OpenAI klienst
+client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 app = Flask(__name__)
 CORS(app)
 
-client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+@app.route("/")
+def home():
+    return "OnlyHuman AI Backend aktív 🚀"
 
 @app.route("/chat", methods=["POST"])
 def chat():
-    data = request.json
-    user_message = data.get("message", "")
+    data = request.get_json()
+    user_input = data.get("message", "")
+
     try:
-        response = client.chat.completions.create(
-            model="gpt-4-1106-preview",
+        completion = client.chat.completions.create(
+            model="gpt-3.5-turbo",
             messages=[
-                { "role": "system", "content": "Te egy barátságos AI tanár vagy." },
-                { "role": "user", "content": user_message }
+                {"role": "system", "content": "You are a helpful tutor."},
+                {"role": "user", "content": user_input}
             ]
         )
-        reply = response.choices[0].message.content
+        reply = completion.choices[0].message.content.strip()
         return jsonify({ "reply": reply })
+
     except Exception as e:
+        print("🔥 Hiba a /chat endpointon:", e)
         return jsonify({ "error": str(e) }), 500
 
-# Ez nagyon fontos!
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run()
+
+print("🔑 Loaded API key:", os.getenv("OPENAI_API_KEY"))
