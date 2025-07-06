@@ -37,7 +37,8 @@ def chat():
         print("🔥 Hiba a /chat endpointon:", e)
         return jsonify({ "error": str(e) }), 500
 
-if __name__ == "__main__":
-    app.run()
 
-print("🔑 Loaded API key:", os.getenv("OPENAI_API_KEY"))
+if __name__ == '__main__':
+    import os
+    port = int(os.environ.get('PORT', 5000))  # Render ezt fogja átadni
+    app.run(host='0.0.0.0', port=port)
