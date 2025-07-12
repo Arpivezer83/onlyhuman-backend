@@ -13,27 +13,34 @@ openai.api_key = os.getenv("OPENAI_API_KEY")
 
 @app.route("/chat", methods=["POST"])
 def chat():
-    try:
-        data = request.get_json()
-        message = data.get("message")
+    data = request.json
+    message = data.get("message", "")
+    profile = data.get("profile", {})
 
-        if not message:
-            return jsonify({"error": "No message provided"}), 400
+    nickname = profile.get("nickname", "Tanuló")
+    goal = profile.get("goal", "segíteni neki a tanulásban")
+    level = profile.get("level", "ismeretlen")
 
-        completion = openai.chat.completions.create(
-            model="gpt-3.5-turbo",
-            messages=[
-                {"role": "system", "content": "You are a helpful tutor."},
-                {"role": "user", "content": message}
-            ]
-        )
+    system_prompt = (
+        f"Te egy kedves, türelmes AI matektanár vagy. "
+        f"A tanuló neve: {nickname}, szintje: {level}, célja: {goal}. "
+        f"Kérlek, válaszolj érthetően, barátságosan és személyre szabottan."
+    )
 
-        reply = completion.choices[0].message.content.strip()
-        return jsonify({"reply": reply})
+    completion = openai.ChatCompletion.create(
+        model="gpt-3.5-turbo"
+        messages=[
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": message},
+        ],
+    )
+
+    reply = completion.choices[0].message["content"]
+    return jsonify({"reply": reply})
 
     except Exception as e:
         print("🔥 Hiba a /chat endpointon:", e)
-        return jsonify({"error": "Hiba történt a válasz generálásakor."}), 500
+    return jsonify({"error": "Hiba történt a válasz generálásakor."}), 500
 
 if __name__ == "__main__":
     app.run(debug=False)
