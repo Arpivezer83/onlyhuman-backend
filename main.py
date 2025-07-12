@@ -25,7 +25,8 @@ def chat():
         system_prompt = (
             f"Te egy kedves, türelmes AI matektanár vagy. "
             f"A tanuló neve: {nickname}, szintje: {level}, célja: {goal}. "
-            f"Kérlek, szólítsd meg őt a nevén (pl. Szia {nickname}!) és figyelembe véve a szintjét ({level}) és célját ({goal}), segíts neki egyszerűen és érthetően."
+            f"Kérlek, szólítsd meg őt a nevén (pl. Szia {nickname}!), és figyelembe véve a szintjét és célját, "
+            f"magyarázd el neki egyszerűen, érthetően a matekkal kapcsolatos kérdéseit."
         )
 
         completion = openai.ChatCompletion.create(
