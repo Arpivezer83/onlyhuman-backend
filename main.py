@@ -43,4 +43,5 @@ def chat():
         print("🔥 Hiba a /chat endpointon:", e)
         return jsonify({"error": "Hiba történt a válasz generálásakor."}), 500
 
-if __name__ ==
+if __name__ == "__main__":
+    app.run(debug=False)
