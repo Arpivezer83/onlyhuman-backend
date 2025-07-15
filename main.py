@@ -51,4 +51,26 @@ def chat():
             system_prompt = math_agent_prompt(nickname, goal, level)
         elif agent == "speak":
             system_prompt = speak_agent_prompt(nickname, goal, level)
-        elif agent == "coach"
+        elif agent == "coach":
+            system_prompt = coach_agent_prompt(nickname, goal, level)
+        else:
+            system_prompt = "Te egy kedves segítő AI vagy."
+
+        # OpenAI GPT-4o hívás
+        completion = client.chat.completions.create(
+            model="gpt-4o",
+            messages=[
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": message},
+            ]
+        )
+
+        reply = completion.choices[0].message.content
+        return jsonify({"reply": reply})
+
+    except Exception as e:
+        print("🔥 Hiba a /chat endpointon:", e)
+        return jsonify({"error": "Hiba történt a válasz generálásakor."}), 500
+
+if __name__ == "__main__":
+    app.run(debug=False)
