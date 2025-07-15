@@ -1,7 +1,7 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-import openai
 import os
+from openai import OpenAI
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -9,7 +9,7 @@ load_dotenv()
 app = Flask(__name__)
 CORS(app)
 
-openai.api_key = os.getenv("OPENAI_API_KEY")
+client = OpenAI()  # ÚJ KLIENS
 
 @app.route("/chat", methods=["POST"])
 def chat():
@@ -23,21 +23,21 @@ def chat():
         level = profile.get("level", "ismeretlen")
 
         system_prompt = (
-            f"Te egy kedves, türelmes AI matektanár vagy. "
+            f"Te egy kedves, türelmes AI tanár vagy. "
             f"A tanuló neve: {nickname}, szintje: {level}, célja: {goal}. "
             f"Kérlek, szólítsd meg őt a nevén (pl. Szia {nickname}!), és figyelembe véve a szintjét és célját, "
-            f"magyarázd el neki egyszerűen, érthetően a matekkal kapcsolatos kérdéseit."
+            f"magyarázd el neki egyszerűen, érthetően a kérdéseit."
         )
 
-        completion = openai.ChatCompletion.create(
-            model="gpt-3.5-turbo",
+        completion = client.chat.completions.create(
+            model="gpt-4o",
             messages=[
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": message},
-            ],
+            ]
         )
 
-        reply = completion.choices[0].message["content"]
+        reply = completion.choices[0].message.content
         return jsonify({"reply": reply})
 
     except Exception as e:
